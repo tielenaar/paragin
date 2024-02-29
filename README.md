@@ -1,7 +1,10 @@
 This Symfony project should run on a server that has PHP 8 running with composer installed and the symfony run-time.
 To install the project use
-#Composer install
-#Symfony serve
+
+## Composer install
+
+## Symfony serve
+
 
 The site should be accessible at http://localhost:8000
 
