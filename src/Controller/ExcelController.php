@@ -7,9 +7,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
+use App\Helper\GradeHelper;
 
 class ExcelController extends AbstractController
 {
+
+    private GradeHelper $gradeHelper;
+
+    public function __construct(GradeHelper $gradeHelper) {
+        $this->gradeHelper = $gradeHelper;
+    }
+
     /**
      * @Route("/", name="upload_excel")
      */
@@ -36,10 +44,10 @@ class ExcelController extends AbstractController
             }
             $reader->close();
             
-            $maxScore = $this->getTotalScore($data[1]);
+            $maxScore = $this->gradeHelper->getTotalScore($data[1]);
             foreach (array_slice($data, 2) as $row) {
-                $score = $this->getTotalScore($row);
-                $grade = $this->getGrade($score, $maxScore);
+                $score = $this->gradeHelper->getTotalScore($row);
+                $grade = $this->gradeHelper->getGrade($score, $maxScore);
                 $cell = clone $row->getCells()[0];
                 $cell->setValue(number_format($grade, 1));
                 $row->addCell($cell);
@@ -61,28 +69,5 @@ class ExcelController extends AbstractController
         ]);
     }
 
-    private function getTotalScore($row) {
-        $total = 0;
-        foreach (array_slice($row->getCells(), 1) as $value) {
-            $total += $value->getValue();
-        }
-        return $total;
-    }
-
-    private function getGrade(float $score, float $maxScore):float {
-        $calculatedScore = $score / $maxScore;
-        $norm = 0.7;
-
-        $scorePerPoint = 4.5 / ($maxScore - ($maxScore * $norm));
-
-        $grade = 10 - ($scorePerPoint * ($maxScore - $score));
-
-
-        if ($calculatedScore <= 0.2 || $grade <= 1.0) {
-            return 1.0;
-        }
-        
-        
-        return $grade;
-    }
+    
 }
