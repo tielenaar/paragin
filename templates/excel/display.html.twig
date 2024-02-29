@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Grades</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                {% for header in data[1].cells %}
+                    <th>{{ header.value }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for row in data|slice(2) %}
+                <tr>
+                    {% for cell in row.cells %}
+                        <td>{{ cell.value }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
