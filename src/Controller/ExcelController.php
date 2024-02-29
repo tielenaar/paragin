@@ -45,19 +45,46 @@ class ExcelController extends AbstractController
             $reader->close();
             
             $maxScore = $this->gradeHelper->getTotalScore($data[1]);
+            $this->gradeHelper->rows[0] = array_slice($data[1]->toArray(), 1);
+            $index = 1;
+
             foreach (array_slice($data, 2) as $row) {
+                $index++;
+                $this->gradeHelper->rows[$index] = array_slice($row->toArray(), 1);
+
                 $score = $this->gradeHelper->getTotalScore($row);
                 $grade = $this->gradeHelper->getGrade($score, $maxScore);
                 $cell = clone $row->getCells()[0];
+
                 $cell->setValue(number_format($grade, 1));
                 $row->addCell($cell);
+
             }
+
             
             //add "grade" in header
             $cell = clone $data[1]->getCells()[0];
             $cell->setValue('Grade');
             $data[1]->addCell($cell);
 
+            // Add P'-values row
+            $pValues = $this->gradeHelper->calculatePvalues();
+            $data[] = clone $data[count($data) - 1];
+            $newRow = $data[count($data) - 1];
+            $index = 0;
+            foreach ($newRow->getCells() as $cell) {
+                if ($index == 0) {
+                    $index++;
+                    $cell->setValue("P'-value");
+                    continue;
+                }
+                $cell->setValue(number_format($pValues[$index], 2));
+                $index++;
+                if ($index > count($newRow->getCells()) - 3) {
+                    break;
+                }
+            }
+            
 
             return $this->render('excel/display.html.twig', [
                 'data' => $data,

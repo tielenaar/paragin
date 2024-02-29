@@ -6,6 +6,8 @@ namespace App\Helper;
 class GradeHelper
 {
 
+    public array $rows;
+
     public function getTotalScore($row) {
         $total = 0;
         foreach (array_slice($row->getCells(), 1) as $value) {
@@ -28,5 +30,26 @@ class GradeHelper
         }
         
         return $grade;
+    }
+
+    public function calculatePValues() {
+
+        $columnCount = count($this->rows[0]);
+        $averages = array_fill(0, $columnCount, 0);
+
+        foreach ($this->rows as $row) {
+            for ($i = 0; $i < $columnCount; $i++) {
+                $averages[$i] += $row[$i];
+            }
+        }
+
+        for ($i = 0; $i < $columnCount; $i++) {
+            $averages[$i] /= count($this->rows);
+            $averages[$i] /= $this->rows[0][$i];
+        }
+
+        return $averages;
+
+        
     }
 }
